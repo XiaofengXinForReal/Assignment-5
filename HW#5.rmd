@@ -1,0 +1,48 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-10-27"
+---
+
+```{r}
+library(readxl)
+ImportationDataofChina<-read_excel("C:/Users/xinxf/OneDrive/Desktop/Rutgers-NB 2023 Fall/Business Forecasting/ImportationDataofChina.xlsx")
+View(ImportationDataofChina)
+library(fpp)
+library(fpp2)
+ImportationDataofChina
+IPV_ts<-ts(ImportationDataofChina$`Periodic Imporation Value`, frequency = 12,start = c(2018,9),end = c(2023,8))
+plot(IPV_ts)
+Acf(IPV_ts)
+stl_decomp <- stl(IPV_ts,s.window ="periodic")
+attributes(stl_decomp)
+plot(stl_decomp)
+#Illustration: What factor dominates data: seasonality seems dominate the first half part. Trend dominates the second half part. But for some points in the second part, seasonality is also a important domination factor as well.
+tmp<-seasadj(stl_decomp)
+plot(tmp)
+#seasonal adjusted plot
+plot(IPV_ts)
+lines(tmp,col = "purple")
+f_stl<-forecast(stl_decomp)
+f_stl<-forecast(stl_decomp,h = 12)
+plot(f_stl)
+accuracy(f_stl)
+attributes(f_stl)
+Acf(f_stl$residuals)#? looking for all the line should not be above the significant line
+f_stl$method
+plot(IPV_ts)
+lines(f_stl$fitted, col = "red")
+decomp_elec<-decompose(IPV_ts)
+attributes(decomp_elec)
+plot(decomp_elec)
+#Illustration: What factor dominates data: seasonality seems dominate the first half part. Trend dominates the second half part. But for some points in the second part, seasonality is also a important domination factor as well.
+decomp_elec
+seasadj(decomp_elec)
+f_decom<-forecast(seasadj(decomp_elec),h=12)
+plot(f_decom)
+f_stl<-forecast(seasadj(stl_decomp),h=12)
+accuracy(f_decom)
+accuracy(f_stl)
+ # As a result, Stl is better. Because it has lower MAE.
+```
+
